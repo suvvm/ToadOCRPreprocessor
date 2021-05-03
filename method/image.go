@@ -61,7 +61,10 @@ func RecgnoizeImage(rimg image.Image) ([][]float64, error) {
 		gocv.Resize(img_region, &img_region, image.Point{28, 28}, 0, 0, gocv.InterpolationLinear)
 		// 输出所有图像
 		// gocv.IMWrite(strconv.Itoa(i)+".jpg", img_region)
-		imgFloat := make([]float64, 28 * 28)
+
+
+
+		// todo  img_region 修改下方区块代码， 转换二值图，之后将mat输出为byte数组，对byte数组进行像素灰度缩放，最终的到的[]float64拷贝入imgFloat
 		dataSlice, err := img_region.DataPtrUint8()
 		for i, f32 := range dataSlice {
 			imgFloat[i] = float64(f32)
@@ -70,6 +73,10 @@ func RecgnoizeImage(rimg image.Image) ([][]float64, error) {
 			log.Printf("fail to DataPtrFloat32 %v", err)
 			return nil, err
 		}
+
+
+
+
 		log.Printf("append imageSet")
 		imageSet = append(imageSet, imgFloat)
 		// 用绿线画出这些找到的轮廓
