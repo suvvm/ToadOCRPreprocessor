@@ -65,9 +65,16 @@ func RecgnoizeImage(rimg image.Image) ([][]float64, error) {
 
 
 		// todo  img_region 修改下方区块代码， 转换二值图，之后将mat输出为byte数组，对byte数组进行像素灰度缩放，最终的到的[]float64拷贝入imgFloat
-		dataSlice, err := img_region.DataPtrUint8()
-		for i, f32 := range dataSlice {
-			imgFloat[i] = float64(f32)
+		// 二值化mat
+		binary := gocv.NewMat()
+		gocv.Threshold(img_region, &binary, 0, 255, gocv.ThresholdOtsu+gocv.ThresholdBinary)
+
+		imgFloat := make([]float64, 0)
+		// dataSlice, err := binary.DataPtrUint8()
+		imgBytes := binary.ToBytes()
+
+		for _, b := range imgBytes {
+			imgFloat = append(imgFloat, PixelWeight(b))
 		}
 		if err != nil {
 			log.Printf("fail to DataPtrFloat32 %v", err)
@@ -87,6 +94,24 @@ func RecgnoizeImage(rimg image.Image) ([][]float64, error) {
 	log.Printf("inner imageSet size:%v", len(imageSet))
 	return imageSet, nil
 }
+
+// PixelWeight 像素灰度缩放
+// mnist给出的图像作为灰度图，单个像素点通过8位的灰度值(0~255)来表示。
+// PixelWeight 函数将字节类型的像素灰度值转换为float64类型，并将范围缩放至(0.0~1.0)
+//
+// 入参
+//	px byte	// 字节型像素灰度值
+//
+// 返回
+//	float64 // 缩放后的浮点灰度值
+func PixelWeight(px byte) float64 {
+	pixelVal := (float64(px) / 255 * 0.999) + 0.001
+	if pixelVal == 1.0 {	// 如果缩放后的值为1.0时，为了数学性能的表现稳定，将其记为0.999
+		return 0.999
+	}
+	return pixelVal
+}
+
 
 func grayImage(img gocv.Mat) gocv.Mat {
 	// 创建一个空的opencv mat 用于保存灰度图
