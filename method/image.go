@@ -62,9 +62,6 @@ func RecgnoizeImage(rimg image.Image) ([][]float64, error) {
 		// 输出所有图像
 		// gocv.IMWrite(strconv.Itoa(i)+".jpg", img_region)
 
-
-
-		// todo  img_region 修改下方区块代码， 转换二值图，之后将mat输出为byte数组，对byte数组进行像素灰度缩放，最终的到的[]float64拷贝入imgFloat
 		// 二值化mat
 		binary := gocv.NewMat()
 		gocv.Threshold(img_region, &binary, 0, 255, gocv.ThresholdOtsu+gocv.ThresholdBinary)
@@ -72,7 +69,7 @@ func RecgnoizeImage(rimg image.Image) ([][]float64, error) {
 		imgFloat := make([]float64, 0)
 		// dataSlice, err := binary.DataPtrUint8()
 		imgBytes := binary.ToBytes()
-
+		// 像素缩放
 		for _, b := range imgBytes {
 			imgFloat = append(imgFloat, PixelWeight(b))
 		}
@@ -80,9 +77,6 @@ func RecgnoizeImage(rimg image.Image) ([][]float64, error) {
 			log.Printf("fail to DataPtrFloat32 %v", err)
 			return nil, err
 		}
-
-
-
 
 		log.Printf("append imageSet")
 		imageSet = append(imageSet, imgFloat)
