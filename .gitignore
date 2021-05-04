@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+toad_ocr_preprocessor
 
 # Test binary, built with `go test -c`
 *.test
