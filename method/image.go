@@ -59,13 +59,12 @@ func RecgnoizeImage(rimg image.Image) ([][]float64, error) {
 		img_region = grayImage(img_region)
 		// 将图像压缩成28*28
 		gocv.Resize(img_region, &img_region, image.Point{28, 28}, 0, 0, gocv.InterpolationLinear)
-		// 输出所有图像
-		// gocv.IMWrite(strconv.Itoa(i)+".jpg", img_region)
-
 		// 二值化mat
 		binary := gocv.NewMat()
 		gocv.Threshold(img_region, &binary, 0, 255, gocv.ThresholdOtsu+gocv.ThresholdBinary)
-
+		gocv.BitwiseNot(binary, &binary)
+		// 输出所有图像
+		//gocv.IMWrite(strconv.Itoa(i)+".jpg", binary)
 		imgFloat := make([]float64, 0)
 		// dataSlice, err := binary.DataPtrUint8()
 		imgBytes := binary.ToBytes()
