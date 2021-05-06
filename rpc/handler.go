@@ -22,6 +22,7 @@ func (s *Server) Ping(ctx context.Context, in *pb.PingRequest) (*pb.PongReply, e
 }
 
 func (s *Server)Process(ctx context.Context, in *pb.ProcessRequest) (*pb.ProcessReply, error) {
+	imgLock.Lock()
 	log.Printf("Received Process")
 	labels := make([]string, 0)
 	log.Printf("in.Image size:%v", len(in.Image))
@@ -30,21 +31,23 @@ func (s *Server)Process(ctx context.Context, in *pb.ProcessRequest) (*pb.Process
 		log.Printf("rpc handler Process err %v", err)
 		return &pb.ProcessReply{Code: int32(*errorCode), Message: err.Error(), Labels: labels}, err
 	}
-	floatImageSet, err := method.RecgnoizeImage(inImage)
-	log.Printf("Process floatImageSet size:%v", len(floatImageSet))
+	imageSet, floatSet, err := method.RecgnoizeImage(inImage)
+	log.Printf("Process imageSet size:%v", len(imageSet))
 	if err != nil {
 		return &pb.ProcessReply{Code: int32(*errorCode), Message: err.Error(), Labels: labels}, err
 	}
 	var lock sync.Mutex
 	var wg sync.WaitGroup
 	ch := make(chan int, 5)
-	for i := 0; i < len(floatImageSet); i++ {
-		tempImage := (floatImageSet)[i]
+	for i := 0; i < len(imageSet); i++ {
+		tempImage := (imageSet)[i]
 		wg.Add(1)
 		ch <- 1
-		go method.OCRGetLabels(in.NetFlag, tempImage, &labels, &lock, &wg, ch)
+		go method.OCRGetLabels(in.NetFlag, tempImage, floatSet[i], &labels, &lock, &wg, ch)
 	}
 	wg.Wait()
+
+	imgLock.Unlock()
 	return &pb.ProcessReply{Code: int32(*successCode), Message: *successMsg, Labels: labels}, nil
 }
 

@@ -31,11 +31,46 @@ func RunRpcClient() {
 		log.Fatal(err)
 	}
 	log.Printf("image size:%v", len(file))
-	resp, err := client.Process(ctx, &pb.ProcessRequest{NetFlag: common.CnnName, Image: file})
-	if err == nil {
-		log.Printf("\nSNN\nMsg is %s\nCode is %d\nLab is %s", resp.Message, resp.Code, resp.Labels)
+	resp, err := client.Process(ctx, &pb.ProcessRequest{NetFlag: common.SnnName, Image: file})
+	if err != nil {
+		log.Printf("error %v", err)
 	}
-	log.Printf("error %v", err)
-
 	log.Printf("\nSNN\nMsg is %s\nCode is %d\nLab is %s", resp.Message, resp.Code, resp.Labels)
+
+	//filename = "img2.jpg"
+	//file, err = ioutil.ReadFile(filename)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//log.Printf("image size:%v", len(file))
+	//resp, err = client.Process(ctx, &pb.ProcessRequest{NetFlag: common.SnnName, Image: file})
+	//if err != nil {
+	//	log.Printf("error %v", err)
+	//}
+	//log.Printf("\nSNN\nMsg is %s\nCode is %d\nLab is %s", resp.Message, resp.Code, resp.Labels)
+	//
+	//
+	//filename = "img3.jpg"
+	//file, err = ioutil.ReadFile(filename)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//log.Printf("image size:%v", len(file))
+	//resp, err = client.Process(ctx, &pb.ProcessRequest{NetFlag: common.SnnName, Image: file})
+	//if err != nil {
+	//	log.Printf("error %v", err)
+	//}
+	//log.Printf("\nSNN\nMsg is %s\nCode is %d\nLab is %s", resp.Message, resp.Code, resp.Labels)
+	//
+	//filename = "img4.jpg"
+	//file, err = ioutil.ReadFile(filename)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//log.Printf("image size:%v", len(file))
+	//resp, err = client.Process(ctx, &pb.ProcessRequest{NetFlag: common.SnnName, Image: file})
+	//if err != nil {
+	//	log.Printf("error %v", err)
+	//}
+	//log.Printf("\nSNN\nMsg is %s\nCode is %d\nLab is %s", resp.Message, resp.Code, resp.Labels)
 }

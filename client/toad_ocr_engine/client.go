@@ -14,7 +14,7 @@ import (
 var (
 	successCode = flag.Int("success code", 0, "rpc reply code")
 	serv = flag.String("service", "toad_ocr_service", "service name")
-	reg  = flag.String("reg", "http://www.suvvm.work:2379", "register etcd address")
+	reg  = flag.String("reg", "http://localhost:2379", "register etcd address")
 	toadOCREngineClient pb.ToadOcrClient
 
 )
@@ -32,8 +32,9 @@ func init() {
 	toadOCREngineClient = pb.NewToadOcrClient(*conn)
 }
 
-func Predict(nnName string, image []float64) (string, error) {
-	resp, err := toadOCREngineClient.Predict(context.Background(), &pb.PredictRequest{NetFlag: nnName, Image: image})
+func Predict(nnName string, image []byte, floats []float64) (string, error) {
+	resp, err := toadOCREngineClient.Predict(context.Background(),
+		&pb.PredictRequest{NetFlag: nnName, Image: image, Imagef: floats})
 	if err != nil {
 		return "", err
 	}

@@ -5,18 +5,20 @@ import (
 	"gocv.io/x/gocv"
 	"image"
 	"image/jpeg"
+	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 	client "suvvm.work/ToadOCRPreprocessor/client/toad_ocr_engine"
 	"sync"
 )
 
-func OCRGetLabels(netFlag string, floatImage []float64, labels *[]string, lock *sync.Mutex, wg *sync.WaitGroup, ch chan int) {
+func OCRGetLabels(netFlag string, image []byte, floats []float64, labels *[]string, lock *sync.Mutex, wg *sync.WaitGroup, ch chan int) {
 	defer func() {
 		<-ch
 		wg.Done()
 	}()
-	resp, err := client.Predict(netFlag, floatImage)
+	resp, err := client.Predict(netFlag, image, floats)
 	if err != nil {
 		log.Printf("method:OCRGetLabels err %v", err)
 		return
@@ -26,7 +28,7 @@ func OCRGetLabels(netFlag string, floatImage []float64, labels *[]string, lock *
 	lock.Unlock()
 }
 
-func RecgnoizeImage(rimg image.Image) ([][]float64, error) {
+func RecgnoizeImage(rimg image.Image) ([][]byte, [][]float64, error) {
 	// log.Printf("start RecgnoizeImage")
 	// resize to width 1000 using Lanczos resampling
 	// and preserve aspect ratio
@@ -50,10 +52,11 @@ func RecgnoizeImage(rimg image.Image) ([][]float64, error) {
 	// 查找和筛选文字区域
 	// log.Printf("findTextRegion")
 	rects := findTextRegion(dilation)
-	imageSet := make([][]float64, 0)
+	imageSet := make([][]byte, 0)
+	imageFSet := make([][]float64, 0)
 	// 裁剪
 	// log.Printf("range rects")
-	for _, rect := range rects {
+	for i, rect := range rects {
 		img_region := img.Region(rect)
 		// 转为灰度图
 		img_region = grayImage(img_region)
@@ -62,30 +65,33 @@ func RecgnoizeImage(rimg image.Image) ([][]float64, error) {
 		// 二值化mat
 		binary := gocv.NewMat()
 		gocv.Threshold(img_region, &binary, 0, 255, gocv.ThresholdOtsu+gocv.ThresholdBinary)
-		gocv.BitwiseNot(binary, &binary)
+		// gocv.BitwiseNot(binary, &binary)
 		// 输出所有图像
-		//gocv.IMWrite(strconv.Itoa(i)+".jpg", binary)
-		imgFloat := make([]float64, 0)
+		gocv.IMWrite("output/images/"+strconv.Itoa(i)+".jpg", binary)
 		// dataSlice, err := binary.DataPtrUint8()
 		imgBytes := binary.ToBytes()
+		imgBytes , err := ioutil.ReadFile("output/images/"+strconv.Itoa(i)+".jpg")
+		if err != nil {
+			log.Printf("read img error %v", err)
+		}
 		// 像素缩放
+		log.Printf("append imageSet")
+		imageSet = append(imageSet, imgBytes)
+
+		gocv.BitwiseNot(binary, &binary)
+		imgBytes = binary.ToBytes()
+		imgFloat := make([]float64, 0)
 		for _, b := range imgBytes {
 			imgFloat = append(imgFloat, PixelWeight(b))
 		}
-		if err != nil {
-			log.Printf("fail to DataPtrFloat32 %v", err)
-			return nil, err
-		}
-
-		log.Printf("append imageSet")
-		imageSet = append(imageSet, imgFloat)
+		imageFSet = append(imageFSet, imgFloat)
 		// 用绿线画出这些找到的轮廓
 		// gocv.Rectangle(&img, rect, color.RGBA{0, 255, 0, 255}, 2)
 	}
 	// 显示带轮廓的图像
 	// gocv.IMWrite("imgDrawRect.jpg", img)
 	log.Printf("inner imageSet size:%v", len(imageSet))
-	return imageSet, nil
+	return imageSet, imageFSet, nil
 }
 
 // PixelWeight 像素灰度缩放
