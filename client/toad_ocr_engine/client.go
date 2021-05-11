@@ -32,7 +32,7 @@ func init() {
 	toadOCREngineClient = pb.NewToadOcrClient(*conn)
 }
 
-func Predict(nnName string, image []float64) (string, error) {
+func Predict(nnName string, image []byte) (string, error) {
 	resp, err := toadOCREngineClient.Predict(context.Background(), &pb.PredictRequest{NetFlag: nnName, Image: image})
 	if err != nil {
 		return "", err
