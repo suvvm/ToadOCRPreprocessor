@@ -5,6 +5,9 @@ import (
 	"os"
 	"suvvm.work/ToadOCRPreprocessor/common"
 	"suvvm.work/ToadOCRPreprocessor/rpc"
+
+	// "suvvm.work/ToadOCRPreprocessor/method"
+	// "image/jpeg"
 )
 
 func main() {
@@ -49,18 +52,25 @@ func main() {
 	}
 }
 
-//func main() {
-//	file, err := os.Open("testImg1.jpg")
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//	// decode jpeg into image.Image
-//	rimg, err := jpeg.Decode(file)
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//	file.Close()
-//
-//	// 识别字符并输出28*28灰度图
-//	method.RecgnoizeImage(rimg)
-//}
+// func main() {
+// 	if len(os.Args) < 2 {
+// 		log.Printf("Please provide command parameters\n Running with " +
+// 			"`help` to show currently supported commands")
+// 		return
+// 	}
+
+// 	filename := os.Args[1]
+// 	file, err := os.Open(filename)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	// decode jpeg into image.Image
+// 	rimg, err := jpeg.Decode(file)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	file.Close()
+
+// 	// 识别字符并输出28*28灰度图
+// 	method.RecgnoizeImage(rimg)
+// }
