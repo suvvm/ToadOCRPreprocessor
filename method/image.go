@@ -17,12 +17,12 @@ import (
 	"sync"
 )
 
-func OCRGetLabels(netFlag string, floatImage []float64, labels *[]string, lock *sync.Mutex, wg *sync.WaitGroup, ch chan int) {
+func OCRGetLabels(netFlag string, image []byte, labels *[]string, lock *sync.Mutex, wg *sync.WaitGroup, ch chan int) {
 	defer func() {
 		<-ch
 		wg.Done()
 	}()
-	resp, err := client.Predict(netFlag, floatImage)
+	resp, err := client.Predict(netFlag, image)
 	if err != nil {
 		log.Printf("method:OCRGetLabels err %v", err)
 		return
@@ -33,7 +33,7 @@ func OCRGetLabels(netFlag string, floatImage []float64, labels *[]string, lock *
 }
 
 /// 识别图像
-func RecgnoizeImage(rimg image.Image) ([][]float64, error) {
+func RecgnoizeImage(rimg image.Image) ([][]byte, error) {
     // log.Printf("start RecgnoizeImage")
     // resize to width 1000 using Lanczos resampling
     // and preserve aspect ratio
@@ -60,7 +60,7 @@ func RecgnoizeImage(rimg image.Image) ([][]float64, error) {
     // 再转回白底黑字
     // gocv.Threshold(img, &dilation, 0, 255, gocv.ThresholdBinaryInv)
 
-    imageSet := make([][]float64, 0)
+    imageSet := make([][]byte, 0)
     // 裁剪
     // log.Printf("range rects")
     for _, rect := range rects {
@@ -76,26 +76,24 @@ func RecgnoizeImage(rimg image.Image) ([][]float64, error) {
 	// 输出所有图像
 	// gocv.IMWrite(strconv.Itoa(i)+".jpg", img_region)
 
-	imgFloat := make([]float64, 0)
+	// imgFloat := make([]float64, 0)
 	// dataSlice, err := binary.DataPtrUint8()
 	imgBytes := img_region.ToBytes()
+
 	// 像素缩放
-	for _, b := range imgBytes {
-	    imgFloat = append(imgFloat, PixelWeight(b))
-	}
-	if err != nil {
-	    log.Printf("fail to DataPtrFloat32 %v", err)
-	    return nil, err
-	}
+	//for _, b := range imgBytes {
+	//    imgFloat = append(imgFloat, PixelWeight(b))
+	//}
 
 	log.Printf("append imageSet")
-	imageSet = append(imageSet, imgFloat)
+	imageSet = append(imageSet, imgBytes)
 	// 用绿线画出这些找到的轮廓
 	// gocv.Rectangle(&img, rect, color.RGBA{0, 255, 0, 255}, 2)
     }
     // 显示带轮廓的图像
     // gocv.IMWrite("imgDrawRect.jpg", img)
     log.Printf("inner imageSet size:%v", len(imageSet))
+    os.Remove(resizedImageName)
     return imageSet, nil
 }
 

@@ -25,13 +25,13 @@ func RunRpcClient() {
 	}
 	defer conn.Close()
 	client := pb.NewToadOcrPreprocessorClient(*conn)
-	filename := "testImg1.jpg"
+	filename := "5.jpg"
 	file, err := ioutil.ReadFile(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Printf("image size:%v", len(file))
-	resp, err := client.Process(ctx, &pb.ProcessRequest{NetFlag: common.CnnName, Image: file})
+	resp, err := client.Process(ctx, &pb.ProcessRequest{NetFlag: common.SnnName, Image: file})
 	if err == nil {
 		log.Printf("\nSNN\nMsg is %s\nCode is %d\nLab is %s", resp.Message, resp.Code, resp.Labels)
 	}
