@@ -68,7 +68,7 @@ func RecgnoizeImage(rimg image.Image) ([][]float64, error) {
 	// 转为灰度图
 	img_region = grayImage(img_region)
 	// 二值化
-	gocv.AdaptiveThreshold(img_region, &img_region, 225, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinary, 31, 16)
+	gocv.AdaptiveThreshold(img_region, &img_region, 225, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinaryInv, 31, 16)
 
 	// 将图像压缩成28*28
 	gocv.Resize(img_region, &img_region, image.Point{28, 28}, 0, 0, gocv.InterpolationLinear)
@@ -211,11 +211,10 @@ func findOverlapping(rect image.Rectangle, rects []image.Rectangle) bool {
     return false
 }
 
-/// 移除重叠的不完全的rect
+/// 移除重叠的且不完全的rect
 func removeOverlappingRect(img gocv.Mat, rects []gocv.PointVector) []image.Rectangle {
 
     sort.Slice(rects, func(i, j int) bool {return gocv.ContourArea(rects[i]) > gocv.ContourArea(rects[j])})
-
 
     blankMat := gocv.Zeros(img.Rows(), img.Cols(), gocv.MatTypeCV8U)
     newRects := make([]image.Rectangle, 0)
