@@ -1,6 +1,7 @@
 package method
 
 import (
+	"context"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -17,13 +18,13 @@ import (
 	"sync"
 )
 
-func OCRGetLabels(netFlag string, image []byte, labels *[]string, lock *sync.Mutex,
+func OCRGetLabels(ctx context.Context, appID, netFlag string, image []byte, labels *[]string, lock *sync.Mutex,
 	wg *sync.WaitGroup, ch chan int, index int) {
 	defer func() {
 		<-ch
 		wg.Done()
 	}()
-	resp, err := client.Predict(netFlag, image)
+	resp, err := client.Predict(ctx, appID, netFlag, image)
 	if err != nil {
 		log.Printf("method:OCRGetLabels err %v", err)
 		return

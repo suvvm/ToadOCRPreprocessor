@@ -55,7 +55,7 @@ func (s *Server)Process(ctx context.Context, in *pb.ProcessRequest) (*pb.Process
 		tmpIndex := i
 		wg.Add(1)
 		ch <- 1
-		go method.OCRGetLabels(in.NetFlag, tempImage, &labels, &lock, &wg, ch, tmpIndex)
+		go method.OCRGetLabels(ctx, in.AppId, in.NetFlag, tempImage, &labels, &lock, &wg, ch, tmpIndex)
 	}
 	wg.Wait()
 	return &pb.ProcessReply{Code: int32(*successCode), Message: *successMsg, Labels: labels}, nil

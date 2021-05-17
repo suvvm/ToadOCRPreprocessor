@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"log"
 	"strconv"
 	"suvvm.work/ToadOCRPreprocessor/dal/cluster"
 	"suvvm.work/ToadOCRPreprocessor/dal/db"
@@ -30,7 +31,7 @@ func VerifySecret(ctx context.Context, appID, basicToken, verifyStr string) erro
 	hasher := md5.New()
 	hasher.Write([]byte(appSecret + verifyStr))
 	md5Token := hex.EncodeToString(hasher.Sum(nil))
-	fmt.Printf("md5Token:%v", md5Token)
+	log.Printf("VerifySecret md5Token:%v", md5Token)
 	if  md5Token != basicToken {
 		return fmt.Errorf("basic token incompatible")
 	}
