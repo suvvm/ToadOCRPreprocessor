@@ -27,7 +27,9 @@ service ToadOcrPreprocessor {
 }
 
 message PingRequest {
-  string name = 1;
+  string app_id = 1;
+  string basic_token = 2;
+  string name = 3;
 }
 
 message PongReply {
@@ -35,8 +37,10 @@ message PongReply {
 }
 
 message ProcessRequest {
-  string net_flag = 1;
-  bytes image = 2;
+  string app_id = 1;
+  string basic_token = 2;
+  string net_flag = 3;
+  bytes image = 4;
 }
 
 message ProcessReply {
