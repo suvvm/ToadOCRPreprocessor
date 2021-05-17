@@ -17,7 +17,8 @@ import (
 	"sync"
 )
 
-func OCRGetLabels(netFlag string, image []byte, labels *[]string, lock *sync.Mutex, wg *sync.WaitGroup, ch chan int) {
+func OCRGetLabels(netFlag string, image []byte, labels *[]string, lock *sync.Mutex,
+	wg *sync.WaitGroup, ch chan int, index int) {
 	defer func() {
 		<-ch
 		wg.Done()
@@ -28,7 +29,7 @@ func OCRGetLabels(netFlag string, image []byte, labels *[]string, lock *sync.Mut
 		return
 	}
 	lock.Lock()
-	*labels = append(*labels, resp)
+	(*labels)[index] = resp
 	lock.Unlock()
 }
 
