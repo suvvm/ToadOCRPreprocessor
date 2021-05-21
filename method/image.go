@@ -221,7 +221,20 @@ func removeOverlappingRect(img gocv.Mat, rects []gocv.PointVector) []image.Recta
     // println(len(rects))
     for i := 0; i < len(rects); i++ {
 	polygon := gocv.MinAreaRect(rects[i])
-	region := blankMat.Region(polygon.BoundingRect)
+	box := polygon.BoundingRect
+
+	// 外接矩形可能出界，手动修正
+	if box.Max.X >= img.Cols() || box.Max.Y >= img.Rows() || box.Min.X <= 0 || box.Min.Y <= 0 {
+	    dim := [4] int{ box.Min.X, box.Min.Y, box.Max.X, box.Max.Y }
+	    if box.Min.X <= 0 { dim[0] = 1 }
+	    if box.Min.Y <= 0 { dim[1] = 1 }
+	    if box.Max.X >= img.Cols() { dim[2] = img.Cols() }
+	    if box.Max.Y >= img.Rows() { dim[3] = img.Rows() }
+
+	    box = image.Rect(dim[0], dim[1], dim[2], dim[3])
+	}
+
+	region := blankMat.Region(box)
 
 	// println(region.Mean().Val1)
 	if region.Mean().Val1 > 0 {
@@ -230,8 +243,8 @@ func removeOverlappingRect(img gocv.Mat, rects []gocv.PointVector) []image.Recta
 	}
 
 	// gocv.IMWrite(strconv.Itoa(i)+"a.jpg", region)
-	gocv.Rectangle(&blankMat, polygon.BoundingRect, color.RGBA{0, 255, 255, 255}, int(gocv.Filled))
-	newRects = append(newRects, polygon.BoundingRect)
+	gocv.Rectangle(&blankMat, box, color.RGBA{0, 255, 255, 255}, int(gocv.Filled))
+	newRects = append(newRects, box)
     }
     // println(blankMat.Cols())
     // println(blankMat.Rows())
