@@ -250,5 +250,8 @@ func removeOverlappingRect(img gocv.Mat, rects []gocv.PointVector) []image.Recta
     // println(blankMat.Rows())
 
     // gocv.IMWrite("blank.jpg", blankMat)
+	
+    sort.Slice(newRects, func(i, j int) bool { return newRects[i].Min.X < newRects[j].Min.X })
+
     return newRects
 }
